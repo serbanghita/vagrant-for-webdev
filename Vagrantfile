@@ -82,7 +82,12 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
 
   config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
+  add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+  apt-get update
 	apt-get upgrade
 	dpkg --configure -a
 	dpkg -l amdgpu-pro
@@ -101,6 +106,8 @@ Vagrant.configure("2") do |config|
 
 	apt-get install -y virtualbox-guest-additions-iso virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms
 
+    apt-get install docker-ce
+
 	echo "allowed-users=anybody" >> /etc/X11/Xwrapper.config
 	echo "needs-root-rights=yes" >> /etc/X11/Xwrapper.config
 	echo "[SeatDefaults]" >> /etc/lightdm/lightdm.conf
@@ -113,7 +120,7 @@ Vagrant.configure("2") do |config|
 	usermod -a -G tty vagrant
 
 	curl -# -L -S https://download.jetbrains.com/webstorm/WebStorm-2018.1.4.tar.gz --output WebStorm.tar.gz
-	mkdir WebStorm && tar xfz WebStorm.tar.gz -C WebStorm --strip-components 1
+	mkdir -p WebStorm && tar xfz WebStorm.tar.gz -C WebStorm --strip-components 1
 	chown -R vagrant:vagrant WebStorm
 
 	updatedb
