@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder ".", "/home/vagrant/www", owner: "vagrant", group: "vagrant"
+  config.vm.synced_folder "../../../../", "/home/vagrant/webserver", owner: "vagrant", group: "vagrant"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -81,52 +81,5 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
 
-  config.vm.provision "shell", inline: <<-SHELL
-  add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-
-  apt-get update
-	apt-get upgrade
-	dpkg --configure -a
-	dpkg -l amdgpu-pro
-
-	apt-get -qqy install apt-transport-https ca-certificates curl software-properties-common
-
-	curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-	apt-get install -y nodejs
-
-	curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-	echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-
-	apt-get install -y google-chrome-stable firefox openjdk-8-jre-headless
-
-	apt-get install -y xinit xfce4 xfce4-terminal lightdm xserver-xorg-video-amdgpu ubuntu-session
-
-	apt-get install -y virtualbox-guest-additions-iso virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms
-
-    apt-get install docker-ce
-
-	echo "allowed-users=anybody" >> /etc/X11/Xwrapper.config
-	echo "needs-root-rights=yes" >> /etc/X11/Xwrapper.config
-	echo "[SeatDefaults]" >> /etc/lightdm/lightdm.conf
-	echo "allow-guest=false" >> /etc/lightdm/lightdm.conf
-	echo "user-session=xfce" >> /etc/lightdm/lightdm.conf
-	echo "autologin-user=vagrant" >> /etc/lightdm/lightdm.conf
-	echo "autologin-user-timeout=0" >> /etc/lightdm/lightdm.conf
-	chmod +x /etc/X11/Xsession
-
-	usermod -a -G tty vagrant
-
-	curl -# -L -S https://download.jetbrains.com/webstorm/WebStorm-2018.1.4.tar.gz --output WebStorm.tar.gz
-	mkdir -p WebStorm && tar xfz WebStorm.tar.gz -C WebStorm --strip-components 1
-	chown -R vagrant:vagrant WebStorm
-
-	updatedb
-
-	if [ "$(tty)" = "/dev/tty1" -o "$(tty)" = "/dev/vc/1" ] ; then
-  		startxfce4
-	fi
-  SHELL
+  config.vm.provision "shell", path: "install.sh"
 end
